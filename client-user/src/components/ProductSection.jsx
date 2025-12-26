@@ -1,10 +1,12 @@
 import { useRef, useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getProducts } from "../services/productApi";
 
 const ProductSection = () => {
   const sliderRef = useRef(null);
 
+  const [products, setProducts] = useState([]);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
 
@@ -31,8 +33,21 @@ const ProductSection = () => {
   };
 
   useEffect(() => {
-    updateArrows();
+    fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const data = await getProducts();
+      setProducts(data);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    }
+  };
+
+  useEffect(() => {
+    updateArrows();
+  }, [products]);
 
   return (
     <section className="mt-10 relative">
@@ -71,8 +86,8 @@ const ProductSection = () => {
           onScroll={updateArrows}
           className="flex gap-4 overflow-hidden scroll-smooth"
         >
-          {Array.from({ length: 12 }).map((_, index) => (
-            <ProductCard key={index} />
+          {products.map((product) => (
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
 
